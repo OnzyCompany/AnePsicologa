@@ -2,14 +2,21 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion';
 import { 
   Menu, X, Heart, Brain, Users, GraduationCap, 
-  MapPin, MessageCircle, Calendar, ArrowRight, 
-  Instagram, Linkedin, Mail 
+  MapPin, MessageCircle, ArrowRight, 
+  Instagram, Mail 
 } from 'lucide-react';
+
+// --- Constants ---
+const WHATSAPP_NUMBER = "5511997867450";
+const WHATSAPP_MESSAGE = "Olá, gostaria de saber mais sobre o atendimento.";
+const WHATSAPP_LINK = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(WHATSAPP_MESSAGE)}`;
+const INSTAGRAM_LINK = "https://www.instagram.com/aaness5775/";
+const ONZY_LINK = "https://www.instagram.com/onzy.company/";
 
 // --- Shared Components ---
 
 const Button = ({ children, variant = 'primary', className = '', onClick }: any) => {
-  const baseStyle = "px-8 py-3 rounded-full font-medium transition-all duration-300 flex items-center justify-center gap-2 transform hover:scale-105 active:scale-95";
+  const baseStyle = "px-8 py-3 rounded-full font-medium transition-all duration-300 flex items-center justify-center gap-2 transform hover:scale-105 active:scale-95 cursor-pointer";
   const variants = {
     primary: "bg-ane-300 text-white hover:bg-ane-400 shadow-lg hover:shadow-ane-200/50",
     outline: "border border-ane-300 text-ane-500 hover:bg-ane-50",
@@ -68,6 +75,11 @@ const Navbar = () => {
     { name: "Contato", href: "#contato" },
   ];
 
+  const handleAction = () => {
+    window.open(WHATSAPP_LINK, '_blank');
+    setIsOpen(false);
+  };
+
   return (
     <nav className={`fixed top-0 w-full z-50 transition-all duration-300 ${scrolled ? 'bg-white/80 backdrop-blur-md shadow-sm py-4' : 'bg-transparent py-6'}`}>
       <div className="container mx-auto px-6 flex justify-between items-center">
@@ -82,7 +94,7 @@ const Navbar = () => {
               {link.name}
             </a>
           ))}
-          <Button variant="primary" className="!px-6 !py-2 !text-sm">Agendar</Button>
+          <Button variant="primary" className="!px-6 !py-2 !text-sm" onClick={handleAction}>Agendar</Button>
         </div>
 
         {/* Mobile Toggle */}
@@ -110,7 +122,7 @@ const Navbar = () => {
                   {link.name}
                 </a>
               ))}
-              <Button onClick={() => setIsOpen(false)} variant="primary">Agendar Consulta</Button>
+              <Button onClick={handleAction} variant="primary">Agendar Consulta</Button>
             </motion.div>
           )}
         </AnimatePresence>
@@ -134,6 +146,10 @@ const Hero = () => {
     }, 100);
     return () => clearInterval(interval);
   }, []);
+
+  const handleAction = () => {
+    window.open(WHATSAPP_LINK, '_blank');
+  };
 
   return (
     <section className="relative min-h-screen flex items-center pt-20 overflow-hidden bg-ane-50">
@@ -167,10 +183,12 @@ const Hero = () => {
             "Cuidar da mente é um ato de coragem."
           </motion.p>
           <div className="flex flex-wrap gap-4">
-            <Button>
+            <Button onClick={handleAction}>
               Agende sua Consulta <ArrowRight size={18} />
             </Button>
-            <Button variant="outline">Saiba Mais</Button>
+            <Button variant="outline" onClick={() => document.getElementById('sobre')?.scrollIntoView({ behavior: 'smooth' })}>
+              Saiba Mais
+            </Button>
           </div>
         </motion.div>
 
@@ -235,9 +253,9 @@ const About = () => {
           >
              <div className="relative rounded-tr-[5rem] rounded-bl-[5rem] overflow-hidden shadow-xl aspect-[3/4] bg-neutral-200">
                 <img 
-                  src="https://images.unsplash.com/photo-1544717305-2782549b5136?q=80&w=1000&auto=format&fit=crop" 
+                  src="https://res.cloudinary.com/dxhlvrach/image/upload/v1764693611/Imagem_do_WhatsApp_de_2025-12-02_%C3%A0_s_12.30.43_b08be458_xyx6mx.jpg" 
                   alt="Ane de Souza trabalhando" 
-                  className="w-full h-full object-cover opacity-90 hover:opacity-100 transition-opacity duration-500"
+                  className="w-full h-full object-cover opacity-95 hover:opacity-100 transition-opacity duration-500"
                 />
              </div>
              {/* Decorative Dots */}
@@ -374,7 +392,7 @@ const Modalities = () => {
           >
             <div className="absolute inset-0 bg-gradient-to-t from-ane-900/80 to-transparent z-10" />
             <img 
-              src="https://res.cloudinary.com/dxhlvrach/image/upload/v1764693611/Imagem_do_WhatsApp_de_2025-12-02_%C3%A0_s_12.30.44_fab2f298_fthmf3.jpg" 
+              src="https://res.cloudinary.com/dxhlvrach/image/upload/v1764693759/Imagem_do_WhatsApp_de_2025-12-02_%C3%A0_s_13.41.49_2c54ed13_vdties.jpg" 
               alt="Atendimento Presencial" 
               className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
             />
@@ -436,7 +454,7 @@ const Quotes = () => {
   }, []);
 
   return (
-    <section className="py-32 bg-gradient-to-br from-ane-300 to-ane-500 text-white relative overflow-hidden">
+    <section id="depoimentos" className="py-32 bg-gradient-to-br from-ane-300 to-ane-500 text-white relative overflow-hidden">
       <div className="absolute top-0 left-0 w-full h-full bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
       
       <div className="container mx-auto px-6 text-center relative z-10">
@@ -471,10 +489,8 @@ const Quotes = () => {
 
 const Gallery = () => {
   const images = [
-    "https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=800&q=80", // Office wide
-    "https://images.unsplash.com/photo-1497215728101-856f4ea42174?auto=format&fit=crop&w=800&q=80", // Chair detail
-    "https://images.unsplash.com/photo-1600607686527-6fb886090705?auto=format&fit=crop&w=800&q=80", // Plant/Decor
-    "https://images.unsplash.com/photo-1507652313519-d4e9174996dd?auto=format&fit=crop&w=800&q=80"  // Waiting room
+    "https://res.cloudinary.com/dxhlvrach/image/upload/v1764693759/Imagem_do_WhatsApp_de_2025-12-02_%C3%A0_s_13.41.49_2c54ed13_vdties.jpg",
+    "https://res.cloudinary.com/dxhlvrach/image/upload/v1764693759/Imagem_do_WhatsApp_de_2025-12-02_%C3%A0_s_13.41.49_7cc605bf_meblt4.jpg"
   ];
 
   return (
@@ -482,7 +498,7 @@ const Gallery = () => {
       <div className="container mx-auto px-6">
         <SectionHeading title="Conheça o Espaço" subtitle="Ambiente Seguro e Acolhedor" />
         
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 h-auto md:h-96">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto h-auto md:h-96">
           {images.map((src, idx) => (
             <motion.div
               key={idx}
@@ -490,10 +506,10 @@ const Gallery = () => {
               whileInView={{ opacity: 1, scale: 1 }}
               viewport={{ once: true }}
               transition={{ delay: idx * 0.1 }}
-              className={`relative rounded-2xl overflow-hidden shadow-md cursor-pointer group ${idx === 0 ? 'md:col-span-2 md:row-span-2 h-64 md:h-full' : 'h-64 md:h-full'}`}
+              className="relative rounded-2xl overflow-hidden shadow-md cursor-pointer group h-64 md:h-full"
             >
               <div className="absolute inset-0 bg-ane-900/0 group-hover:bg-ane-900/20 transition-colors z-10" />
-              <img src={src} alt="Escritório" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+              <img src={src} alt={`Escritório ${idx + 1}`} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
             </motion.div>
           ))}
         </div>
@@ -503,6 +519,10 @@ const Gallery = () => {
 };
 
 const CTA = () => {
+  const handleAction = () => {
+    window.open(WHATSAPP_LINK, '_blank');
+  };
+
   return (
     <section className="py-20 px-6">
       <div className="container mx-auto max-w-5xl bg-ane-900 rounded-[3rem] p-12 md:p-24 text-center relative overflow-hidden shadow-2xl">
@@ -523,7 +543,7 @@ const CTA = () => {
           <Button 
             variant="white" 
             className="mx-auto text-lg px-10 py-4 !text-ane-900 animate-pulse hover:animate-none"
-            onClick={() => window.open('https://wa.me/5511999999999', '_blank')}
+            onClick={handleAction}
           >
             <MessageCircle className="mr-2" /> Agendar pelo WhatsApp
           </Button>
@@ -535,22 +555,21 @@ const CTA = () => {
 
 const Footer = () => {
   return (
-    <footer id="contato" className="bg-white border-t border-gray-100 pt-20 pb-10">
+    <footer id="contato" className="bg-white border-t border-gray-100 pt-20 pb-6">
       <div className="container mx-auto px-6">
         <div className="grid md:grid-cols-3 gap-12 mb-16">
           
           <div>
-            <h3 className="text-2xl font-serif font-bold text-ane-500 mb-6">Ane de Souza</h3>
+            <a href={INSTAGRAM_LINK} target="_blank" rel="noopener noreferrer" className="inline-block group">
+              <h3 className="text-2xl font-serif font-bold text-ane-500 group-hover:text-ane-400 transition-colors mb-6">Ane de Souza</h3>
+            </a>
             <p className="text-gray-500 leading-relaxed mb-6">
-              Psicóloga Clínica - CRP 00/00000<br/>
+              Psicóloga Clínica<br/>
               Ajudando você a encontrar sua melhor versão através do autoconhecimento.
             </p>
             <div className="flex gap-4">
-              <a href="#" className="w-10 h-10 rounded-full bg-ane-50 flex items-center justify-center text-ane-400 hover:bg-ane-400 hover:text-white transition-all">
+              <a href={INSTAGRAM_LINK} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-ane-50 flex items-center justify-center text-ane-400 hover:bg-ane-400 hover:text-white transition-all">
                 <Instagram size={20} />
-              </a>
-              <a href="#" className="w-10 h-10 rounded-full bg-ane-50 flex items-center justify-center text-ane-400 hover:bg-ane-400 hover:text-white transition-all">
-                <Linkedin size={20} />
               </a>
             </div>
           </div>
@@ -558,9 +577,9 @@ const Footer = () => {
           <div>
             <h4 className="font-bold text-gray-800 mb-6">Contato</h4>
             <ul className="space-y-4 text-gray-600">
-              <li className="flex items-center gap-3 hover:text-ane-400 transition-colors cursor-pointer">
+              <li className="flex items-center gap-3 hover:text-ane-400 transition-colors cursor-pointer" onClick={() => window.open(WHATSAPP_LINK, '_blank')}>
                 <MessageCircle size={18} className="text-ane-300" />
-                (11) 99999-9999
+                (11) 99786-7450
               </li>
               <li className="flex items-center gap-3 hover:text-ane-400 transition-colors cursor-pointer">
                 <Mail size={18} className="text-ane-300" />
@@ -584,8 +603,12 @@ const Footer = () => {
           </div>
         </div>
 
-        <div className="border-t border-gray-100 pt-8 text-center text-gray-400 text-sm">
+        <div className="border-t border-gray-100 pt-8 flex flex-col md:flex-row justify-between items-center text-gray-400 text-sm gap-4">
           <p>&copy; {new Date().getFullYear()} Ane de Souza. Todos os direitos reservados.</p>
+          
+          <a href={ONZY_LINK} target="_blank" rel="noopener noreferrer" className="group flex items-center gap-1 hover:text-ane-400 transition-colors">
+            Desenvolvido por <span className="font-semibold text-gray-500 group-hover:text-ane-400 transition-colors">Onzy Company</span>
+          </a>
         </div>
       </div>
     </footer>
