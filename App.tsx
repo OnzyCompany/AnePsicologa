@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion';
+import React, { useState, useEffect, useRef } from 'react';
+import { motion, AnimatePresence, useScroll, useTransform, useInView, animate } from 'framer-motion';
 import { 
   Menu, X, Heart, Brain, Users, GraduationCap, 
   MapPin, MessageCircle, ArrowRight, 
@@ -12,6 +12,9 @@ const WHATSAPP_MESSAGE = "Olá, gostaria de saber mais sobre o atendimento.";
 const WHATSAPP_LINK = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(WHATSAPP_MESSAGE)}`;
 const INSTAGRAM_LINK = "https://www.instagram.com/aaness5775/";
 const ONZY_LINK = "https://www.instagram.com/onzy.company/";
+const CRP_NUMBER = "CRP 06/149287";
+const ADDRESS_TEXT = "R. Orense, 41 - Centro, Diadema - SP, 09920-650";
+const EMAIL_TEXT = "robertinhabrandao_2011@hotmail.com";
 
 // --- Shared Components ---
 
@@ -55,6 +58,28 @@ const SectionHeading = ({ title, subtitle, align = 'center', light = false }: { 
   </div>
 );
 
+const AnimatedCounter = ({ from, to }: { from: number; to: number }) => {
+  const nodeRef = useRef<HTMLSpanElement>(null);
+  const isInView = useInView(nodeRef, { once: true, margin: "-50px" });
+
+  useEffect(() => {
+    if (isInView && nodeRef.current) {
+      const controls = animate(from, to, {
+        duration: 2,
+        onUpdate(value) {
+          if (nodeRef.current) {
+            nodeRef.current.textContent = value.toFixed(0);
+          }
+        },
+        ease: "easeOut"
+      });
+      return () => controls.stop();
+    }
+  }, [from, to, isInView]);
+
+  return <span ref={nodeRef} className="block text-4xl font-serif font-bold text-ane-400 mb-2">{from}</span>;
+};
+
 // --- Components ---
 
 const Navbar = () => {
@@ -72,6 +97,7 @@ const Navbar = () => {
     { name: "Especialidades", href: "#especialidades" },
     { name: "Processo", href: "#processo" },
     { name: "Atendimento", href: "#atendimento" },
+    { name: "Localização", href: "#localizacao" },
     { name: "Dúvidas", href: "#faq" },
   ];
 
@@ -80,7 +106,6 @@ const Navbar = () => {
     setIsOpen(false);
   };
 
-  // Adjust width based on screen size in the animation to handle mobile vs desktop correctly
   const isMobile = typeof window !== 'undefined' ? window.innerWidth < 768 : false;
 
   return (
@@ -88,9 +113,9 @@ const Navbar = () => {
       <motion.nav
         initial={{ width: "100%", top: 0, borderRadius: 0, padding: "1.5rem 0" }}
         animate={{
-          width: scrolled ? (isMobile ? "92%" : "65%") : "100%", // Much more compact on desktop
+          width: scrolled ? (isMobile ? "92%" : "65%") : "100%", 
           top: scrolled ? "1rem" : "0",
-          borderRadius: scrolled ? "50px" : "0px", // More rounded for capsule look
+          borderRadius: scrolled ? "50px" : "0px",
           padding: scrolled ? "0.75rem 0" : "1.5rem 0",
           backgroundColor: scrolled ? "rgba(255, 255, 255, 0.85)" : "transparent",
           backdropFilter: scrolled ? "blur(16px)" : "blur(0px)",
@@ -156,7 +181,7 @@ const FloatingWhatsApp = () => {
 
   useEffect(() => {
     return scrollY.on("change", (latest) => {
-      setVisible(latest > 600); // Show after Hero section (approx 600px)
+      setVisible(latest > 600);
     });
   }, [scrollY]);
 
@@ -173,11 +198,9 @@ const FloatingWhatsApp = () => {
           whileHover={{ scale: 1.1 }}
           className="fixed bottom-6 right-6 z-50 flex items-center justify-center w-16 h-16 bg-[#25D366] rounded-full shadow-lg cursor-pointer group"
         >
-          {/* Pulse Effect */}
           <span className="absolute inline-flex h-full w-full rounded-full bg-[#25D366] opacity-75 animate-ping"></span>
           <MessageCircle className="text-white w-8 h-8 relative z-10" />
           
-          {/* Tooltip */}
           <span className="absolute right-20 bg-white text-gray-700 px-4 py-2 rounded-xl shadow-md whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-300 text-sm font-medium">
             Agende sua consulta
           </span>
@@ -209,22 +232,21 @@ const Hero = () => {
 
   return (
     <section className="relative min-h-screen flex items-center pt-28 overflow-hidden bg-ane-50">
-      {/* Background Shapes */}
       <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-ane-200/30 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/2" />
       <div className="absolute bottom-0 left-0 w-[300px] h-[300px] bg-ane-300/20 rounded-full blur-[80px] translate-y-1/2 -translate-x-1/2" />
 
       <div className="container mx-auto px-6 grid md:grid-cols-2 gap-12 items-center relative z-10">
         
-        {/* Text Content */}
         <motion.div 
           initial={{ opacity: 0, x: -30 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.8 }}
           className="order-2 md:order-1"
         >
-          <div className="h-8 mb-4">
-            <span className="text-ane-400 font-bold tracking-widest uppercase text-sm md:text-base">{text}</span>
-            <span className="animate-pulse text-ane-400 ml-1">|</span>
+          <div className="mb-4">
+            <span className="text-ane-400 font-bold tracking-widest uppercase text-sm md:text-base mr-1">{text}</span>
+            <span className="animate-pulse text-ane-400">|</span>
+            <p className="text-xs text-gray-400 font-medium mt-1">{CRP_NUMBER}</p>
           </div>
           <h1 className="text-6xl md:text-8xl font-serif text-gray-800 leading-tight mb-8">
             Ane de <br/>
@@ -248,13 +270,11 @@ const Hero = () => {
           </div>
         </motion.div>
 
-        {/* Hero Image */}
         <motion.div 
           style={{ y }}
           className="order-1 md:order-2 flex justify-center relative"
         >
           <div className="relative w-80 h-[28rem] md:w-96 md:h-[32rem]">
-            {/* Organic blob background behind image */}
             <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" className="absolute -top-10 -right-10 w-full h-full text-ane-200/50 z-0 scale-125">
               <path fill="currentColor" d="M44.7,-76.4C58.9,-69.2,71.8,-59.1,79.6,-46.3C87.4,-33.5,90.1,-17.9,89.1,-2.4C88.1,13.1,83.3,28.5,74.5,41.2C65.7,53.9,52.8,63.9,39.2,69.5C25.6,75.1,11.3,76.3,-2.2,80.1C-15.7,83.9,-28.5,90.3,-40.3,86.6C-52.1,82.9,-63,69.1,-71.3,54.5C-79.6,39.9,-85.3,24.5,-85.9,8.8C-86.5,-6.9,-82,-22.9,-73.2,-36.4C-64.4,-49.9,-51.3,-60.9,-37.6,-68.3C-23.9,-75.7,-9.6,-79.5,4,-86.4L17.6,-93.3L44.7,-76.4Z" transform="translate(100 100)" />
             </svg>
@@ -272,7 +292,6 @@ const Hero = () => {
               />
             </motion.div>
 
-            {/* Floating Badge */}
             <motion.div 
               initial={{ y: 20, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
@@ -314,21 +333,20 @@ const About = () => {
                   className="w-full h-full object-cover opacity-95 hover:opacity-100 transition-opacity duration-500"
                 />
              </div>
-             {/* Decorative Dots */}
              <div className="absolute -bottom-10 -right-10 w-32 h-32 pattern-dots text-ane-200 opacity-50"></div>
           </motion.div>
 
           <div>
             <SectionHeading title="Sobre a Profissional" subtitle="Minha Jornada" align="left" />
             
-            <div className="space-y-6 text-gray-600 font-light text-lg leading-relaxed">
+            <div className="space-y-6 text-gray-600 font-light text-lg leading-relaxed text-justify">
               <motion.p 
                 initial={{ opacity: 0, y: 10 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: 0.2 }}
               >
-                Olá, sou Ane de Souza. Psicóloga clínica apaixonada pelo potencial humano de transformação. Minha atuação é pautada na Abordagem Centrada na Pessoa, onde acredito que todo indivíduo possui os recursos necessários para o seu próprio crescimento.
+                Sou psicóloga clínica e atuo a partir da Abordagem Centrada na Pessoa (ACP), uma linha da psicologia desenvolvida por Carl Rogers que valoriza a singularidade de cada indivíduo. Essa abordagem parte da confiança no potencial humano de crescer, se desenvolver e encontrar seus próprios caminhos quando acolhido em um espaço seguro, respeitoso e empático.
               </motion.p>
               <motion.p
                 initial={{ opacity: 0, y: 10 }}
@@ -336,27 +354,45 @@ const About = () => {
                 viewport={{ once: true }}
                 transition={{ delay: 0.3 }}
               >
-                Ofereço psicoterapia tanto online quanto presencial, criando um espaço de escuta ativa e empática, livre de julgamentos. Meu objetivo é caminhar ao seu lado na busca por autoconhecimento e bem-estar.
+                Meu objetivo é oferecer um ambiente de escuta sensível, livre de julgamentos, onde você possa se sentir à vontade para compartilhar suas experiências, sentimentos e desafios. Acredito que, quando a pessoa se sente compreendida e aceita, torna-se possível construir novas formas de lidar com as dificuldades, desenvolver autoconfiança e fortalecer sua saúde emocional.
+              </motion.p>
+              <motion.p
+                initial={{ opacity: 0, y: 10 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.4 }}
+              >
+                Mais do que trabalhar apenas com sintomas, busco caminhar junto com você em seu processo de autoconhecimento, promovendo bem-estar, autenticidade e qualidade de vida.
               </motion.p>
             </div>
 
             <div className="grid grid-cols-2 gap-8 mt-12">
-               {[
-                 { label: "Anos de Experiência", value: "8+" },
-                 { label: "Vidas Transformadas", value: "500+" }
-               ].map((stat, idx) => (
-                 <motion.div 
-                   key={idx}
-                   initial={{ opacity: 0, scale: 0.8 }}
-                   whileInView={{ opacity: 1, scale: 1 }}
-                   viewport={{ once: true }}
-                   transition={{ delay: 0.4 + (idx * 0.1) }}
-                   className="bg-ane-50 p-6 rounded-2xl text-center border border-ane-100"
-                 >
-                   <span className="block text-4xl font-serif font-bold text-ane-400 mb-2">{stat.value}</span>
-                   <span className="text-sm text-gray-500 uppercase tracking-wide">{stat.label}</span>
-                 </motion.div>
-               ))}
+               <motion.div 
+                 initial={{ opacity: 0, scale: 0.8 }}
+                 whileInView={{ opacity: 1, scale: 1 }}
+                 viewport={{ once: true }}
+                 className="bg-ane-50 p-6 rounded-2xl text-center border border-ane-100"
+               >
+                 <div className="flex justify-center items-center gap-1">
+                   <AnimatedCounter from={0} to={8} />
+                   <span className="text-4xl font-serif font-bold text-ane-400 mb-2">+</span>
+                 </div>
+                 <span className="text-sm text-gray-500 uppercase tracking-wide">Anos de Experiência</span>
+               </motion.div>
+
+               <motion.div 
+                 initial={{ opacity: 0, scale: 0.8 }}
+                 whileInView={{ opacity: 1, scale: 1 }}
+                 viewport={{ once: true }}
+                 transition={{ delay: 0.1 }}
+                 className="bg-ane-50 p-6 rounded-2xl text-center border border-ane-100"
+               >
+                 <div className="flex justify-center items-center gap-1">
+                   <AnimatedCounter from={0} to={500} />
+                   <span className="text-4xl font-serif font-bold text-ane-400 mb-2">+</span>
+                 </div>
+                 <span className="text-sm text-gray-500 uppercase tracking-wide">Vidas Transformadas</span>
+               </motion.div>
             </div>
           </div>
         </div>
@@ -434,7 +470,6 @@ const Specialties = () => {
 const PinnedSection = () => {
   return (
     <div id="processo" className="relative w-full h-[200vh]">
-      {/* Sticky Background Image */}
       <div className="sticky top-0 h-screen w-full overflow-hidden">
         <div className="absolute inset-0 bg-black/50 z-10" />
         <img 
@@ -444,7 +479,6 @@ const PinnedSection = () => {
         />
       </div>
 
-      {/* Scrolling Content */}
       <div className="relative z-20 -mt-[100vh]">
         <div className="h-screen flex items-center justify-center px-6">
           <motion.div 
@@ -537,6 +571,57 @@ const Modalities = () => {
   );
 };
 
+const LocationSection = () => {
+  return (
+    <section id="localizacao" className="py-24 bg-ane-50/50">
+      <div className="container mx-auto px-6">
+        <SectionHeading title="Localização" subtitle="Onde me encontrar" />
+        
+        <div className="max-w-5xl mx-auto">
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="w-full h-96 rounded-[2rem] overflow-hidden shadow-lg border border-ane-100"
+          >
+            <iframe 
+              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3653.666993883162!2d-46.62473492388654!3d-23.68784846624458!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x94ce44e6b18a221f%3A0xd685b8c9d2f605a!2sR.%20Orense%2C%2041%20-%20Centro%2C%20Diadema%20-%20SP%2C%2009920-650!5e0!3m2!1sen!2sbr!4v1709400000000!5m2!1sen!2sbr" 
+              width="100%" 
+              height="100%" 
+              style={{ border: 0 }} 
+              allowFullScreen={true} 
+              loading="lazy" 
+              referrerPolicy="no-referrer-when-downgrade"
+            ></iframe>
+          </motion.div>
+          
+          <div className="mt-8 grid md:grid-cols-2 gap-6">
+             <div className="flex items-center gap-4 bg-white p-6 rounded-2xl shadow-sm">
+                <div className="w-12 h-12 bg-ane-100 rounded-full flex items-center justify-center text-ane-500">
+                   <MapPin size={24} />
+                </div>
+                <div>
+                   <h4 className="font-bold text-gray-800">Endereço</h4>
+                   <p className="text-gray-600 text-sm mt-1">{ADDRESS_TEXT}</p>
+                </div>
+             </div>
+             
+             <div className="flex items-center gap-4 bg-white p-6 rounded-2xl shadow-sm">
+                <div className="w-12 h-12 bg-ane-100 rounded-full flex items-center justify-center text-ane-500">
+                   <MessageCircle size={24} />
+                </div>
+                <div>
+                   <h4 className="font-bold text-gray-800">Agende sua visita</h4>
+                   <p className="text-gray-600 text-sm mt-1">Atendimento com hora marcada</p>
+                </div>
+             </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+};
+
 const FAQ = () => {
   const faqs = [
     { question: "Como agendar uma consulta?", answer: "O agendamento é feito diretamente pelo WhatsApp. Basta clicar no botão de agendar e você será redirecionado para combinarmos o melhor horário." },
@@ -552,13 +637,13 @@ const FAQ = () => {
   };
 
   return (
-    <section id="faq" className="py-24 bg-ane-50">
+    <section id="faq" className="py-24 bg-white">
       <div className="container mx-auto px-6 max-w-3xl">
         <SectionHeading title="Dúvidas Frequentes" subtitle="Esclarecimentos" />
         
         <div className="space-y-4">
           {faqs.map((faq, idx) => (
-            <div key={idx} className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+            <div key={idx} className="bg-ane-50 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
               <button 
                 onClick={() => toggleFAQ(idx)}
                 className="w-full flex justify-between items-center p-6 text-left focus:outline-none"
@@ -677,7 +762,6 @@ const CTA = () => {
   return (
     <section className="py-20 px-6">
       <div className="container mx-auto max-w-5xl bg-ane-900 rounded-[3rem] p-12 md:p-24 text-center relative overflow-hidden shadow-2xl">
-        {/* Abstract shapes */}
         <div className="absolute top-0 right-0 w-64 h-64 bg-ane-500 rounded-full blur-[80px] opacity-40"></div>
         <div className="absolute bottom-0 left-0 w-64 h-64 bg-ane-300 rounded-full blur-[80px] opacity-30"></div>
         
@@ -712,8 +796,9 @@ const Footer = () => {
           
           <div className="flex flex-col items-center md:items-start">
             <a href={INSTAGRAM_LINK} target="_blank" rel="noopener noreferrer" className="inline-block group">
-              <h3 className="text-2xl font-serif font-bold text-ane-500 group-hover:text-ane-400 transition-colors mb-6">Ane de Souza</h3>
+              <h3 className="text-2xl font-serif font-bold text-ane-500 group-hover:text-ane-400 transition-colors mb-2">Ane de Souza</h3>
             </a>
+            <p className="text-gray-500 font-medium mb-4">{CRP_NUMBER}</p>
             <p className="text-gray-500 leading-relaxed mb-6">
               Psicóloga Clínica<br/>
               Ajudando você a encontrar sua melhor versão através do autoconhecimento.
@@ -734,11 +819,11 @@ const Footer = () => {
               </li>
               <li className="flex items-center gap-3 hover:text-ane-400 transition-colors cursor-pointer justify-center md:justify-start">
                 <Mail size={18} className="text-ane-300" />
-                contato@anedesouza.com.br
+                {EMAIL_TEXT}
               </li>
               <li className="flex items-start gap-3 hover:text-ane-400 transition-colors cursor-pointer justify-center md:justify-start text-left">
                 <MapPin size={18} className="text-ane-300 mt-1 shrink-0" />
-                <span>Rua das Flores, 123 - Sala 405<br/>Centro, São Paulo - SP</span>
+                <span>{ADDRESS_TEXT}</span>
               </li>
             </ul>
           </div>
@@ -749,6 +834,7 @@ const Footer = () => {
               <li><a href="#sobre" className="hover:text-ane-400 transition-colors">Sobre Mim</a></li>
               <li><a href="#especialidades" className="hover:text-ane-400 transition-colors">Especialidades</a></li>
               <li><a href="#atendimento" className="hover:text-ane-400 transition-colors">Modalidades</a></li>
+              <li><a href="#localizacao" className="hover:text-ane-400 transition-colors">Localização</a></li>
               <li><a href="#faq" className="hover:text-ane-400 transition-colors">Dúvidas Frequentes</a></li>
             </ul>
           </div>
@@ -777,6 +863,7 @@ export default function App() {
       <Specialties />
       <PinnedSection />
       <Modalities />
+      <LocationSection />
       <FAQ />
       <Quotes />
       <Gallery />
