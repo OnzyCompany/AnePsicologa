@@ -3,7 +3,7 @@ import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion'
 import { 
   Menu, X, Heart, Brain, Users, GraduationCap, 
   MapPin, MessageCircle, ArrowRight, 
-  Instagram, Mail 
+  Instagram, Mail, ChevronDown, ChevronUp, CheckCircle2 
 } from 'lucide-react';
 
 // --- Constants ---
@@ -30,14 +30,14 @@ const Button = ({ children, variant = 'primary', className = '', onClick }: any)
   );
 };
 
-const SectionHeading = ({ title, subtitle, align = 'center' }: { title: string, subtitle?: string, align?: 'left' | 'center' }) => (
+const SectionHeading = ({ title, subtitle, align = 'center', light = false }: { title: string, subtitle?: string, align?: 'left' | 'center', light?: boolean }) => (
   <div className={`mb-16 ${align === 'center' ? 'text-center' : 'text-left'}`}>
     {subtitle && (
       <motion.span 
         initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
-        className="text-ane-400 font-sans tracking-widest text-sm uppercase mb-3 block"
+        className={`${light ? 'text-ane-200' : 'text-ane-400'} font-sans tracking-widest text-sm uppercase mb-3 block font-bold`}
       >
         {subtitle}
       </motion.span>
@@ -47,15 +47,15 @@ const SectionHeading = ({ title, subtitle, align = 'center' }: { title: string, 
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
       transition={{ delay: 0.1 }}
-      className="text-4xl md:text-5xl font-serif text-gray-800 relative inline-block"
+      className={`text-5xl md:text-6xl font-serif ${light ? 'text-white' : 'text-gray-800'} relative inline-block font-medium leading-tight`}
     >
       {title}
-      <span className="absolute -bottom-4 left-0 w-full h-1 bg-gradient-to-r from-ane-200 to-transparent rounded-full opacity-60" />
+      <span className={`absolute -bottom-4 left-0 w-full h-1 bg-gradient-to-r ${light ? 'from-white/50' : 'from-ane-200'} to-transparent rounded-full opacity-60`} />
     </motion.h2>
   </div>
 );
 
-// --- Sections ---
+// --- Components ---
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -70,9 +70,9 @@ const Navbar = () => {
   const links = [
     { name: "Sobre", href: "#sobre" },
     { name: "Especialidades", href: "#especialidades" },
+    { name: "Processo", href: "#processo" },
     { name: "Atendimento", href: "#atendimento" },
-    { name: "Depoimentos", href: "#depoimentos" },
-    { name: "Contato", href: "#contato" },
+    { name: "Dúvidas", href: "#faq" },
   ];
 
   const handleAction = () => {
@@ -80,54 +80,110 @@ const Navbar = () => {
     setIsOpen(false);
   };
 
+  // Adjust width based on screen size in the animation to handle mobile vs desktop correctly
+  const isMobile = typeof window !== 'undefined' ? window.innerWidth < 768 : false;
+
   return (
-    <nav className={`fixed top-0 w-full z-50 transition-all duration-300 ${scrolled ? 'bg-white/80 backdrop-blur-md shadow-sm py-4' : 'bg-transparent py-6'}`}>
-      <div className="container mx-auto px-6 flex justify-between items-center">
-        <a href="#" className="font-serif text-2xl text-ane-500 font-bold z-50 relative">
-          Ane de Souza
-        </a>
+    <>
+      <motion.nav
+        initial={{ width: "100%", top: 0, borderRadius: 0, padding: "1.5rem 0" }}
+        animate={{
+          width: scrolled ? (isMobile ? "92%" : "65%") : "100%", // Much more compact on desktop
+          top: scrolled ? "1rem" : "0",
+          borderRadius: scrolled ? "50px" : "0px", // More rounded for capsule look
+          padding: scrolled ? "0.75rem 0" : "1.5rem 0",
+          backgroundColor: scrolled ? "rgba(255, 255, 255, 0.85)" : "transparent",
+          backdropFilter: scrolled ? "blur(16px)" : "blur(0px)",
+          boxShadow: scrolled ? "0 8px 32px rgba(31, 38, 135, 0.15)" : "none",
+          border: scrolled ? "1px solid rgba(255, 255, 255, 0.5)" : "1px solid transparent",
+        }}
+        transition={{ duration: 0.5, type: "spring", stiffness: 100, damping: 20 }}
+        className="fixed left-1/2 -translate-x-1/2 z-50 flex justify-center items-center"
+      >
+        <div className={`container px-8 flex justify-between items-center w-full transition-all duration-500 ${scrolled ? 'max-w-full' : 'mx-auto'}`}>
+          <a href="#" className="font-serif text-2xl text-ane-500 font-bold z-50 relative shrink-0">
+            Ane de Souza
+          </a>
 
-        {/* Desktop Menu */}
-        <div className="hidden md:flex items-center gap-8">
-          {links.map(link => (
-            <a key={link.name} href={link.href} className="text-gray-600 hover:text-ane-400 transition-colors font-sans text-sm tracking-wide">
-              {link.name}
-            </a>
-          ))}
-          <Button variant="primary" className="!px-6 !py-2 !text-sm" onClick={handleAction}>Agendar</Button>
+          {/* Desktop Menu */}
+          <div className="hidden md:flex items-center gap-6 lg:gap-8">
+            {links.map(link => (
+              <a key={link.name} href={link.href} className="text-gray-600 hover:text-ane-400 transition-colors font-sans text-sm tracking-wide font-medium">
+                {link.name}
+              </a>
+            ))}
+            <Button variant="primary" className="!px-6 !py-2 !text-sm whitespace-nowrap" onClick={handleAction}>Agendar</Button>
+          </div>
+
+          {/* Mobile Toggle */}
+          <button onClick={() => setIsOpen(!isOpen)} className="md:hidden z-50 text-gray-700">
+            {isOpen ? <X size={28} /> : <Menu size={28} />}
+          </button>
         </div>
+      </motion.nav>
 
-        {/* Mobile Toggle */}
-        <button onClick={() => setIsOpen(!isOpen)} className="md:hidden z-50 text-gray-700">
-          {isOpen ? <X size={28} /> : <Menu size={28} />}
-        </button>
+      {/* Mobile Menu Overlay */}
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ opacity: 0, x: '100%' }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: '100%' }}
+            transition={{ type: 'tween', duration: 0.4 }}
+            className="fixed inset-0 bg-white z-40 flex flex-col items-center justify-center gap-8"
+          >
+            {links.map(link => (
+              <a 
+                key={link.name} 
+                href={link.href} 
+                onClick={() => setIsOpen(false)}
+                className="text-2xl font-serif text-gray-800 hover:text-ane-400"
+              >
+                {link.name}
+              </a>
+            ))}
+            <Button onClick={handleAction} variant="primary">Agendar Consulta</Button>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </>
+  );
+};
 
-        {/* Mobile Menu Overlay */}
-        <AnimatePresence>
-          {isOpen && (
-            <motion.div
-              initial={{ opacity: 0, x: '100%' }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: '100%' }}
-              transition={{ type: 'tween', duration: 0.4 }}
-              className="fixed inset-0 bg-white z-40 flex flex-col items-center justify-center gap-8"
-            >
-              {links.map(link => (
-                <a 
-                  key={link.name} 
-                  href={link.href} 
-                  onClick={() => setIsOpen(false)}
-                  className="text-2xl font-serif text-gray-800 hover:text-ane-400"
-                >
-                  {link.name}
-                </a>
-              ))}
-              <Button onClick={handleAction} variant="primary">Agendar Consulta</Button>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
-    </nav>
+const FloatingWhatsApp = () => {
+  const { scrollY } = useScroll();
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    return scrollY.on("change", (latest) => {
+      setVisible(latest > 600); // Show after Hero section (approx 600px)
+    });
+  }, [scrollY]);
+
+  return (
+    <AnimatePresence>
+      {visible && (
+        <motion.a
+          href={WHATSAPP_LINK}
+          target="_blank"
+          rel="noopener noreferrer"
+          initial={{ scale: 0, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          exit={{ scale: 0, opacity: 0 }}
+          whileHover={{ scale: 1.1 }}
+          className="fixed bottom-6 right-6 z-50 flex items-center justify-center w-16 h-16 bg-[#25D366] rounded-full shadow-lg cursor-pointer group"
+        >
+          {/* Pulse Effect */}
+          <span className="absolute inline-flex h-full w-full rounded-full bg-[#25D366] opacity-75 animate-ping"></span>
+          <MessageCircle className="text-white w-8 h-8 relative z-10" />
+          
+          {/* Tooltip */}
+          <span className="absolute right-20 bg-white text-gray-700 px-4 py-2 rounded-xl shadow-md whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-300 text-sm font-medium">
+            Agende sua consulta
+          </span>
+        </motion.a>
+      )}
+    </AnimatePresence>
   );
 };
 
@@ -152,7 +208,7 @@ const Hero = () => {
   };
 
   return (
-    <section className="relative min-h-screen flex items-center pt-20 overflow-hidden bg-ane-50">
+    <section className="relative min-h-screen flex items-center pt-28 overflow-hidden bg-ane-50">
       {/* Background Shapes */}
       <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-ane-200/30 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/2" />
       <div className="absolute bottom-0 left-0 w-[300px] h-[300px] bg-ane-300/20 rounded-full blur-[80px] translate-y-1/2 -translate-x-1/2" />
@@ -166,11 +222,11 @@ const Hero = () => {
           transition={{ duration: 0.8 }}
           className="order-2 md:order-1"
         >
-          <div className="h-8 mb-2">
-            <span className="text-ane-400 font-medium tracking-widest uppercase">{text}</span>
-            <span className="animate-pulse text-ane-400">|</span>
+          <div className="h-8 mb-4">
+            <span className="text-ane-400 font-bold tracking-widest uppercase text-sm md:text-base">{text}</span>
+            <span className="animate-pulse text-ane-400 ml-1">|</span>
           </div>
-          <h1 className="text-5xl md:text-7xl font-serif text-gray-800 leading-tight mb-6">
+          <h1 className="text-6xl md:text-8xl font-serif text-gray-800 leading-tight mb-8">
             Ane de <br/>
             <span className="text-ane-400 italic">Souza</span>
           </h1>
@@ -178,7 +234,7 @@ const Hero = () => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 1, duration: 1 }}
-            className="text-xl text-gray-600 mb-8 max-w-md font-light italic"
+            className="text-2xl text-gray-600 mb-10 max-w-md font-light italic"
           >
             "Cuidar da mente é um ato de coragem."
           </motion.p>
@@ -375,6 +431,50 @@ const Specialties = () => {
   );
 };
 
+const PinnedSection = () => {
+  return (
+    <div id="processo" className="relative w-full h-[200vh]">
+      {/* Sticky Background Image */}
+      <div className="sticky top-0 h-screen w-full overflow-hidden">
+        <div className="absolute inset-0 bg-black/50 z-10" />
+        <img 
+          src="https://images.unsplash.com/photo-1544717305-2782549b5136?q=80&w=1974&auto=format&fit=crop"
+          alt="Atmosphere"
+          className="w-full h-full object-cover"
+        />
+      </div>
+
+      {/* Scrolling Content */}
+      <div className="relative z-20 -mt-[100vh]">
+        <div className="h-screen flex items-center justify-center px-6">
+          <motion.div 
+            initial={{ opacity: 0, y: 50 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            className="max-w-3xl text-center text-white p-8 md:p-12"
+          >
+            <SectionHeading title="O Processo Terapêutico" subtitle="Um encontro genuíno" light={true} />
+            <p className="text-2xl md:text-3xl font-light leading-relaxed opacity-90">
+              A terapia não é apenas sobre resolver problemas, mas sobre expandir a consciência de quem você é. Em um ambiente seguro, convido você a explorar suas emoções, ressignificar experiências e descobrir novas formas de estar no mundo.
+            </p>
+          </motion.div>
+        </div>
+        
+        <div className="h-[50vh] flex items-center justify-center px-6 bg-gradient-to-b from-transparent to-white/10 backdrop-blur-sm">
+          <motion.div 
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            className="text-white text-center"
+          >
+            <ArrowRight size={48} className="mx-auto mb-4 animate-bounce text-ane-200" />
+            <p className="text-xl font-serif italic">Continue sua jornada...</p>
+          </motion.div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const Modalities = () => {
   return (
     <section id="atendimento" className="py-24 bg-white">
@@ -431,6 +531,57 @@ const Modalities = () => {
               </p>
             </div>
           </motion.div>
+        </div>
+      </div>
+    </section>
+  );
+};
+
+const FAQ = () => {
+  const faqs = [
+    { question: "Como agendar uma consulta?", answer: "O agendamento é feito diretamente pelo WhatsApp. Basta clicar no botão de agendar e você será redirecionado para combinarmos o melhor horário." },
+    { question: "Qual a duração das sessões?", answer: "As sessões têm duração aproximada de 50 minutos, tempo ideal para desenvolvermos o trabalho terapêutico com qualidade." },
+    { question: "O atendimento online é eficaz?", answer: "Sim, diversos estudos comprovam que a eficácia é a mesma do presencial. O vínculo e o sigilo são mantidos com o mesmo rigor ético." },
+    { question: "Existe sigilo profissional?", answer: "Absolutamente. Todo o conteúdo das sessões é protegido pelo Código de Ética Profissional do Psicólogo, garantindo total confidencialidade." },
+  ];
+
+  const [activeIndex, setActiveIndex] = useState<number | null>(null);
+
+  const toggleFAQ = (index: number) => {
+    setActiveIndex(activeIndex === index ? null : index);
+  };
+
+  return (
+    <section id="faq" className="py-24 bg-ane-50">
+      <div className="container mx-auto px-6 max-w-3xl">
+        <SectionHeading title="Dúvidas Frequentes" subtitle="Esclarecimentos" />
+        
+        <div className="space-y-4">
+          {faqs.map((faq, idx) => (
+            <div key={idx} className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+              <button 
+                onClick={() => toggleFAQ(idx)}
+                className="w-full flex justify-between items-center p-6 text-left focus:outline-none"
+              >
+                <span className="font-serif text-lg font-medium text-gray-800">{faq.question}</span>
+                {activeIndex === idx ? <ChevronUp className="text-ane-400" /> : <ChevronDown className="text-gray-400" />}
+              </button>
+              <AnimatePresence>
+                {activeIndex === idx && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: "auto", opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    className="overflow-hidden"
+                  >
+                    <div className="px-6 pb-6 text-gray-600 font-light leading-relaxed">
+                      {faq.answer}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+          ))}
         </div>
       </div>
     </section>
@@ -494,7 +645,7 @@ const Gallery = () => {
   ];
 
   return (
-    <section className="py-24 bg-ane-50">
+    <section className="py-24 bg-white">
       <div className="container mx-auto px-6">
         <SectionHeading title="Conheça o Espaço" subtitle="Ambiente Seguro e Acolhedor" />
         
@@ -555,11 +706,11 @@ const CTA = () => {
 
 const Footer = () => {
   return (
-    <footer id="contato" className="bg-white border-t border-gray-100 pt-20 pb-6">
+    <footer id="contato" className="bg-white border-t border-gray-100 pt-20 pb-24">
       <div className="container mx-auto px-6">
-        <div className="grid md:grid-cols-3 gap-12 mb-16">
+        <div className="grid md:grid-cols-3 gap-12 mb-16 text-center md:text-left">
           
-          <div>
+          <div className="flex flex-col items-center md:items-start">
             <a href={INSTAGRAM_LINK} target="_blank" rel="noopener noreferrer" className="inline-block group">
               <h3 className="text-2xl font-serif font-bold text-ane-500 group-hover:text-ane-400 transition-colors mb-6">Ane de Souza</h3>
             </a>
@@ -574,36 +725,36 @@ const Footer = () => {
             </div>
           </div>
 
-          <div>
+          <div className="flex flex-col items-center md:items-start">
             <h4 className="font-bold text-gray-800 mb-6">Contato</h4>
             <ul className="space-y-4 text-gray-600">
-              <li className="flex items-center gap-3 hover:text-ane-400 transition-colors cursor-pointer" onClick={() => window.open(WHATSAPP_LINK, '_blank')}>
+              <li className="flex items-center gap-3 hover:text-ane-400 transition-colors cursor-pointer justify-center md:justify-start" onClick={() => window.open(WHATSAPP_LINK, '_blank')}>
                 <MessageCircle size={18} className="text-ane-300" />
                 (11) 99786-7450
               </li>
-              <li className="flex items-center gap-3 hover:text-ane-400 transition-colors cursor-pointer">
+              <li className="flex items-center gap-3 hover:text-ane-400 transition-colors cursor-pointer justify-center md:justify-start">
                 <Mail size={18} className="text-ane-300" />
                 contato@anedesouza.com.br
               </li>
-              <li className="flex items-start gap-3 hover:text-ane-400 transition-colors cursor-pointer">
-                <MapPin size={18} className="text-ane-300 mt-1" />
+              <li className="flex items-start gap-3 hover:text-ane-400 transition-colors cursor-pointer justify-center md:justify-start text-left">
+                <MapPin size={18} className="text-ane-300 mt-1 shrink-0" />
                 <span>Rua das Flores, 123 - Sala 405<br/>Centro, São Paulo - SP</span>
               </li>
             </ul>
           </div>
 
-          <div>
+          <div className="flex flex-col items-center md:items-start">
             <h4 className="font-bold text-gray-800 mb-6">Links Rápidos</h4>
             <ul className="space-y-3 text-gray-500">
               <li><a href="#sobre" className="hover:text-ane-400 transition-colors">Sobre Mim</a></li>
               <li><a href="#especialidades" className="hover:text-ane-400 transition-colors">Especialidades</a></li>
               <li><a href="#atendimento" className="hover:text-ane-400 transition-colors">Modalidades</a></li>
-              <li><a href="#" className="hover:text-ane-400 transition-colors">Política de Privacidade</a></li>
+              <li><a href="#faq" className="hover:text-ane-400 transition-colors">Dúvidas Frequentes</a></li>
             </ul>
           </div>
         </div>
 
-        <div className="border-t border-gray-100 pt-8 flex flex-col md:flex-row justify-between items-center text-gray-400 text-sm gap-4">
+        <div className="border-t border-gray-100 pt-8 flex flex-col items-center text-gray-400 text-sm gap-4 text-center">
           <p>&copy; {new Date().getFullYear()} Ane de Souza. Todos os direitos reservados.</p>
           
           <a href={ONZY_LINK} target="_blank" rel="noopener noreferrer" className="group flex items-center gap-1 hover:text-ane-400 transition-colors">
@@ -624,11 +775,14 @@ export default function App() {
       <Hero />
       <About />
       <Specialties />
+      <PinnedSection />
       <Modalities />
+      <FAQ />
       <Quotes />
       <Gallery />
       <CTA />
       <Footer />
+      <FloatingWhatsApp />
     </div>
   );
 }
