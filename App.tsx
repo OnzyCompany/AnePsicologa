@@ -173,13 +173,13 @@ const Navbar = () => {
           </a>
 
           {/* Desktop Menu */}
-          <div className="hidden lg:flex items-center gap-6 xl:gap-8">
+          <div className="hidden lg:flex items-center gap-6 xl:gap-10">
             {links.map(link => (
               <a key={link.name} href={link.href} className="text-gray-600 hover:text-ane-400 transition-colors font-sans text-sm tracking-wide font-medium cursor-pointer whitespace-nowrap">
                 {link.name}
               </a>
             ))}
-            <Button variant="primary" className="!px-6 !py-2 !text-sm whitespace-nowrap" onClick={handleAction}>Agendar</Button>
+            <Button variant="primary" className="!px-6 !py-2 !text-sm whitespace-nowrap z-50" onClick={handleAction}>Agendar</Button>
           </div>
 
           {/* Mobile Toggle */}
@@ -668,56 +668,117 @@ const LocationSection = () => {
 };
 
 const PatientTestimonials = () => {
+  const [expandedId, setExpandedId] = useState<number | null>(null);
+
   const testimonials = [
     {
       text: "Fazer terapia com a Ane foi um divisor de águas na minha vida. Senti um acolhimento genuíno e consegui entender questões que carregava há anos.",
       author: "Maria S.",
-      stars: 5
+      stars: 5,
+      isLong: false
     },
     {
-      text: "Profissional extremamente competente e empática. O ambiente seguro que ela cria me permitiu ser eu mesmo sem medo de julgamentos.",
-      author: "João P.",
-      stars: 5
+      text: "Gostei muito do seu atendimento. Você me ajudou muito! Você não só me ajudou a ver os meus problemas com outros olhos, me ajudou a ser uma pessoa melhor, diferente, me ajudou a tratar os meus problemas e não só a aprender a lidar com eles.",
+      author: "Paciente Anônimo",
+      stars: 5,
+      isLong: false
     },
     {
       text: "A abordagem humanista fez toda a diferença para mim. Me sinto ouvida e respeitada em cada sessão. Recomendo de olhos fechados.",
       author: "Ana Clara",
-      stars: 5
+      stars: 5,
+      isLong: false
     },
     {
-      text: "Excelente psicóloga! Me ajudou a lidar com a ansiedade e a me conhecer melhor. Sou muito grata por todo o processo.",
-      author: "Beatriz M.",
-      stars: 5
+      text: `Profissionalmente, acho a senhora muito dedicada e atenta a cada detalhe.
+
+Vejo na senhora um verdadeiro amor pela profissão. No tempo em que fiquei afastada da terapia, percebi o quanto é importante falar com alguém e saber que essa pessoa realmente vai escutar. Abrir o coração para quem entende faz toda a diferença.
+
+Conversando com algumas pessoas, percebemos a falta de afeto.
+
+"Isso é frescura."
+"Para de ser dramática."
+"Você é tão fraca."
+
+São algumas das frases que escutamos quando estamos no "fundo do poço".
+
+A senhora foi como uma luz nesse poço escuro.
+
+A voz que me diz:
+"Você consegue!"
+"Vamos tentar novamente!"
+"Está tudo bem!"
+
+E a frase que eu mais gosto de ouvir:
+"Eu estou com você!"
+
+Muitas vezes nos sentimos sozinhas, sem enxergar ninguém ao nosso lado, e só de escutar essa frase já é o suficiente.
+
+Sei que preciso mudar muito, mas só de saber que tenho alguém que me entende em qualquer momento e me direciona para o meu bem, já consigo ver uma nova possibilidade.`,
+      author: "Paciente em Recuperação",
+      stars: 5,
+      isLong: true
     }
   ];
+
+  const handleToggle = (idx: number) => {
+    setExpandedId(expandedId === idx ? null : idx);
+  };
 
   return (
     <section id="depoimentos-pacientes" className="py-24 bg-white scroll-mt-32">
       <div className="container mx-auto px-6">
         <SectionHeading title="Depoimentos" subtitle="O que dizem os pacientes" />
         
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {testimonials.map((item, idx) => (
-            <motion.div
-              key={idx}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: idx * 0.1 }}
-              whileHover={{ y: -5 }}
-              className="bg-ane-50/50 p-8 rounded-3xl border border-transparent hover:border-ane-100 hover:shadow-lg transition-all duration-300 relative"
-            >
-              <Quote className="text-ane-200 mb-4 w-8 h-8" />
-              <div className="flex gap-1 mb-4">
-                {[...Array(item.stars)].map((_, i) => (
-                  <Star key={i} size={16} className="fill-ane-300 text-ane-300" />
-                ))}
-              </div>
-              <p className="text-gray-600 font-light italic mb-6 leading-relaxed">"{item.text}"</p>
-              <p className="font-serif font-bold text-gray-800 text-right">- {item.author}</p>
-            </motion.div>
-          ))}
-        </div>
+        <motion.div layout className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <AnimatePresence mode="popLayout">
+            {testimonials.map((item, idx) => {
+              const isExpanded = expandedId === idx;
+              const isHidden = expandedId !== null && expandedId !== idx;
+              const showButton = item.isLong;
+
+              if (isHidden) return null;
+
+              return (
+                <motion.div
+                  layout
+                  key={idx}
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.9 }}
+                  transition={{ duration: 0.3 }}
+                  className={`bg-ane-50/50 p-8 rounded-3xl border border-transparent hover:border-ane-100 hover:shadow-lg transition-all duration-300 relative ${isExpanded ? 'col-span-full' : ''}`}
+                >
+                  <Quote className="text-ane-200 mb-4 w-8 h-8" />
+                  <div className="flex gap-1 mb-4">
+                    {[...Array(item.stars)].map((_, i) => (
+                      <Star key={i} size={16} className="fill-ane-300 text-ane-300" />
+                    ))}
+                  </div>
+                  
+                  <motion.div layout>
+                    <p className={`text-gray-600 font-light italic mb-6 leading-relaxed ${isExpanded ? 'whitespace-pre-line' : ''}`}>
+                      {isExpanded || !showButton ? `"${item.text}"` : `"${item.text.substring(0, 150)}..."`}
+                    </p>
+                  </motion.div>
+
+                  <div className="flex justify-between items-center mt-4">
+                     <p className="font-serif font-bold text-gray-800">- {item.author}</p>
+                     
+                     {showButton && (
+                       <button 
+                         onClick={() => handleToggle(idx)}
+                         className="text-ane-400 hover:text-ane-500 text-sm font-semibold underline underline-offset-4 cursor-pointer"
+                       >
+                         {isExpanded ? "Ver menos" : "Ver mais"}
+                       </button>
+                     )}
+                  </div>
+                </motion.div>
+              );
+            })}
+          </AnimatePresence>
+        </motion.div>
       </div>
     </section>
   );
