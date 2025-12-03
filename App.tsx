@@ -148,6 +148,16 @@ const Navbar = () => {
     setIsOpen(false);
   };
 
+  const handleScroll = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+    e.preventDefault();
+    const targetId = href.replace('#', '');
+    const element = document.getElementById(targetId);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' });
+      setIsOpen(false);
+    }
+  };
+
   const isMobile = typeof window !== 'undefined' ? window.innerWidth < 768 : false;
 
   return (
@@ -168,14 +178,19 @@ const Navbar = () => {
         className="fixed left-1/2 -translate-x-1/2 z-50 flex justify-center items-center"
       >
         <div className={`container px-8 flex justify-between items-center w-full transition-all duration-500 ${scrolled ? 'max-w-full' : 'mx-auto'}`}>
-          <a href="#" className="font-serif text-2xl text-ane-500 font-bold z-50 relative shrink-0 cursor-pointer">
+          <a href="#" className="font-serif text-2xl text-ane-500 font-bold z-50 relative shrink-0 cursor-pointer" onClick={(e) => handleScroll(e, '#home')}>
             Ane Souza
           </a>
 
           {/* Desktop Menu */}
           <div className="hidden lg:flex items-center gap-6 xl:gap-10">
             {links.map(link => (
-              <a key={link.name} href={link.href} className="text-gray-600 hover:text-ane-400 transition-colors font-sans text-sm tracking-wide font-medium cursor-pointer whitespace-nowrap">
+              <a 
+                key={link.name} 
+                href={link.href} 
+                onClick={(e) => handleScroll(e, link.href)}
+                className="text-gray-600 hover:text-ane-400 transition-colors font-sans text-sm tracking-wide font-medium cursor-pointer whitespace-nowrap"
+              >
                 {link.name}
               </a>
             ))}
@@ -203,7 +218,7 @@ const Navbar = () => {
               <a 
                 key={link.name} 
                 href={link.href} 
-                onClick={() => setIsOpen(false)}
+                onClick={(e) => handleScroll(e, link.href)}
                 className="text-2xl font-serif text-gray-800 hover:text-ane-400 cursor-pointer"
               >
                 {link.name}
@@ -481,7 +496,7 @@ const Specialties = () => {
               key={idx}
               variants={itemVariant}
               whileHover={{ y: -10 }}
-              className="bg-white p-8 rounded-3xl shadow-sm hover:shadow-xl transition-all duration-300 border border-transparent hover:border-ane-100 group cursor-pointer"
+              className="bg-white p-8 rounded-3xl shadow-sm hover:shadow-xl transition-all duration-300 border border-transparent hover:border-ane-100 hover:scale-105 group cursor-pointer"
             >
               <div className="w-14 h-14 bg-ane-100 rounded-2xl flex items-center justify-center text-ane-500 mb-6 group-hover:bg-ane-400 group-hover:text-white transition-colors duration-300">
                 {item.icon}
@@ -543,7 +558,7 @@ const PinnedSection = () => {
         initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.5, duration: 1 }}
-        className="absolute bottom-10 z-20 flex flex-col items-center gap-3"
+        className="absolute bottom-10 z-20 hidden md:flex flex-col items-center gap-3"
       >
         <div className="p-4 rounded-full bg-white/10 backdrop-blur-md border border-white/20 shadow-lg text-white">
            <ArrowDown size={32} className="animate-bounce" />
