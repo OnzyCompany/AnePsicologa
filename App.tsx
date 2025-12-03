@@ -4,7 +4,7 @@ import {
   Menu, X, Heart, Brain, Users, GraduationCap, 
   MapPin, MessageCircle, ArrowRight, ArrowDown,
   Instagram, Mail, ChevronDown, ChevronUp, CheckCircle2,
-  Quote, Star
+  Quote, Star, Cookie
 } from 'lucide-react';
 
 // --- Constants ---
@@ -118,6 +118,51 @@ const CustomCursor = () => {
       }}
       transition={{ type: "spring", stiffness: 500, damping: 28 }}
     />
+  );
+};
+
+const CookieConsent = () => {
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    const consent = localStorage.getItem('ane_cookie_consent');
+    if (!consent) {
+      setTimeout(() => setVisible(true), 2000);
+    }
+  }, []);
+
+  const handleAccept = () => {
+    localStorage.setItem('ane_cookie_consent', 'true');
+    setVisible(false);
+  };
+
+  return (
+    <AnimatePresence>
+      {visible && (
+        <motion.div
+          initial={{ y: 100, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          exit={{ y: 100, opacity: 0 }}
+          className="fixed bottom-0 left-0 w-full bg-white border-t border-ane-100 shadow-[0_-5px_20px_rgba(0,0,0,0.05)] z-[60] p-6 md:p-4"
+        >
+          <div className="container mx-auto max-w-6xl flex flex-col md:flex-row items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <div className="bg-ane-100 p-2 rounded-full text-ane-500 hidden md:block">
+                <Cookie size={24} />
+              </div>
+              <p className="text-gray-600 text-sm leading-relaxed text-center md:text-left">
+                Utilizamos cookies para melhorar sua experiência e analisar o tráfego do site. Ao continuar navegando, você concorda com nossa política de privacidade.
+              </p>
+            </div>
+            <div className="flex gap-3">
+              <Button onClick={handleAccept} className="!py-2 !px-6 !text-sm">
+                Aceitar
+              </Button>
+            </div>
+          </div>
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 };
 
@@ -1013,6 +1058,7 @@ const Footer = () => {
               <li><a href="#atendimento" className="hover:text-ane-400 transition-colors cursor-pointer">Modalidades</a></li>
               <li><a href="#localizacao" className="hover:text-ane-400 transition-colors cursor-pointer">Localização</a></li>
               <li><a href="#faq" className="hover:text-ane-400 transition-colors cursor-pointer">Dúvidas Frequentes</a></li>
+              <li><a href="#" className="hover:text-ane-400 transition-colors cursor-pointer text-xs uppercase tracking-wide">Política de Privacidade</a></li>
             </ul>
           </div>
         </div>
@@ -1049,6 +1095,7 @@ export default function App() {
       <CTA />
       <Footer />
       <FloatingWhatsApp />
+      <CookieConsent />
     </div>
   );
 }
