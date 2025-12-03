@@ -58,6 +58,42 @@
       html {
         scroll-behavior: smooth;
       }
+      
+      /* RGB Gradient Border Animation */
+      @keyframes border-rotate {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+      }
+      
+      .gradient-border-box {
+        position: relative;
+        background: white;
+        z-index: 0;
+      }
+      
+      .gradient-border-box::before {
+        content: "";
+        position: absolute;
+        inset: -3px;
+        z-index: -1;
+        background: linear-gradient(60deg, #D4C5E8, #9B7EBD, #B8A1D6, #EBE4F5, #9B7EBD);
+        background-size: 300% 300%;
+        animation: border-rotate 4s ease infinite;
+        border-radius: inherit;
+        filter: blur(8px);
+        opacity: 0.8;
+      }
+      
+      /* Hide cursor on desktop to use custom cursor */
+      @media (min-width: 768px) {
+        body {
+          cursor: none;
+        }
+        a, button, .cursor-pointer {
+          cursor: none;
+        }
+      }
     </style>
   <script type="importmap">
 {

@@ -2,8 +2,9 @@ import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence, useScroll, useTransform, useInView, animate } from 'framer-motion';
 import { 
   Menu, X, Heart, Brain, Users, GraduationCap, 
-  MapPin, MessageCircle, ArrowRight, 
-  Instagram, Mail, ChevronDown, ChevronUp, CheckCircle2 
+  MapPin, MessageCircle, ArrowRight, ArrowDown,
+  Instagram, Mail, ChevronDown, ChevronUp, CheckCircle2,
+  Quote, Star
 } from 'lucide-react';
 
 // --- Constants ---
@@ -19,7 +20,7 @@ const EMAIL_TEXT = "robertinhabrandao_2011@hotmail.com";
 // --- Shared Components ---
 
 const Button = ({ children, variant = 'primary', className = '', onClick }: any) => {
-  const baseStyle = "px-8 py-3 rounded-full font-medium transition-all duration-300 flex items-center justify-center gap-2 transform hover:scale-105 active:scale-95 cursor-pointer";
+  const baseStyle = "px-8 py-3 rounded-full font-medium transition-all duration-300 flex items-center justify-center gap-2 transform hover:scale-105 active:scale-95 z-10 relative cursor-pointer";
   const variants = {
     primary: "bg-ane-300 text-white hover:bg-ane-400 shadow-lg hover:shadow-ane-200/50",
     outline: "border border-ane-300 text-ane-500 hover:bg-ane-50",
@@ -80,6 +81,46 @@ const AnimatedCounter = ({ from, to }: { from: number; to: number }) => {
   return <span ref={nodeRef} className="block text-4xl font-serif font-bold text-ane-400 mb-2">{from}</span>;
 };
 
+const CustomCursor = () => {
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const [isHovering, setIsHovering] = useState(false);
+
+  useEffect(() => {
+    const updateMousePosition = (e: MouseEvent) => {
+      setMousePosition({ x: e.clientX, y: e.clientY });
+    };
+
+    const handleMouseOver = (e: MouseEvent) => {
+      if ((e.target as HTMLElement).closest('button, a, .cursor-pointer')) {
+        setIsHovering(true);
+      } else {
+        setIsHovering(false);
+      }
+    };
+
+    window.addEventListener('mousemove', updateMousePosition);
+    window.addEventListener('mouseover', handleMouseOver);
+
+    return () => {
+      window.removeEventListener('mousemove', updateMousePosition);
+      window.removeEventListener('mouseover', handleMouseOver);
+    };
+  }, []);
+
+  return (
+    <motion.div
+      className="fixed top-0 left-0 w-8 h-8 rounded-full border-2 border-ane-400 pointer-events-none z-[9999] hidden md:block mix-blend-multiply"
+      animate={{
+        x: mousePosition.x - 16,
+        y: mousePosition.y - 16,
+        scale: isHovering ? 1.5 : 1,
+        backgroundColor: isHovering ? 'rgba(184, 161, 214, 0.2)' : 'transparent',
+      }}
+      transition={{ type: "spring", stiffness: 500, damping: 28 }}
+    />
+  );
+};
+
 // --- Components ---
 
 const Navbar = () => {
@@ -98,6 +139,7 @@ const Navbar = () => {
     { name: "Processo", href: "#processo" },
     { name: "Atendimento", href: "#atendimento" },
     { name: "Localização", href: "#localizacao" },
+    { name: "Depoimentos", href: "#depoimentos-pacientes" },
     { name: "Dúvidas", href: "#faq" },
   ];
 
@@ -113,11 +155,11 @@ const Navbar = () => {
       <motion.nav
         initial={{ width: "100%", top: 0, borderRadius: 0, padding: "1.5rem 0" }}
         animate={{
-          width: scrolled ? (isMobile ? "92%" : "65%") : "100%", 
+          width: scrolled ? (isMobile ? "92%" : "85%") : "100%", 
           top: scrolled ? "1rem" : "0",
           borderRadius: scrolled ? "50px" : "0px",
           padding: scrolled ? "0.75rem 0" : "1.5rem 0",
-          backgroundColor: scrolled ? "rgba(255, 255, 255, 0.85)" : "transparent",
+          backgroundColor: scrolled ? "rgba(255, 255, 255, 0.95)" : "transparent",
           backdropFilter: scrolled ? "blur(16px)" : "blur(0px)",
           boxShadow: scrolled ? "0 8px 32px rgba(31, 38, 135, 0.15)" : "none",
           border: scrolled ? "1px solid rgba(255, 255, 255, 0.5)" : "1px solid transparent",
@@ -126,14 +168,14 @@ const Navbar = () => {
         className="fixed left-1/2 -translate-x-1/2 z-50 flex justify-center items-center"
       >
         <div className={`container px-8 flex justify-between items-center w-full transition-all duration-500 ${scrolled ? 'max-w-full' : 'mx-auto'}`}>
-          <a href="#" className="font-serif text-2xl text-ane-500 font-bold z-50 relative shrink-0">
-            Ane de Souza
+          <a href="#" className="font-serif text-2xl text-ane-500 font-bold z-50 relative shrink-0 cursor-pointer">
+            Ane Souza
           </a>
 
           {/* Desktop Menu */}
-          <div className="hidden md:flex items-center gap-6 lg:gap-8">
+          <div className="hidden lg:flex items-center gap-6 xl:gap-8">
             {links.map(link => (
-              <a key={link.name} href={link.href} className="text-gray-600 hover:text-ane-400 transition-colors font-sans text-sm tracking-wide font-medium">
+              <a key={link.name} href={link.href} className="text-gray-600 hover:text-ane-400 transition-colors font-sans text-sm tracking-wide font-medium cursor-pointer whitespace-nowrap">
                 {link.name}
               </a>
             ))}
@@ -141,7 +183,7 @@ const Navbar = () => {
           </div>
 
           {/* Mobile Toggle */}
-          <button onClick={() => setIsOpen(!isOpen)} className="md:hidden z-50 text-gray-700">
+          <button onClick={() => setIsOpen(!isOpen)} className="lg:hidden z-50 text-gray-700 cursor-pointer">
             {isOpen ? <X size={28} /> : <Menu size={28} />}
           </button>
         </div>
@@ -162,7 +204,7 @@ const Navbar = () => {
                 key={link.name} 
                 href={link.href} 
                 onClick={() => setIsOpen(false)}
-                className="text-2xl font-serif text-gray-800 hover:text-ane-400"
+                className="text-2xl font-serif text-gray-800 hover:text-ane-400 cursor-pointer"
               >
                 {link.name}
               </a>
@@ -231,7 +273,7 @@ const Hero = () => {
   };
 
   return (
-    <section className="relative min-h-screen flex items-center pt-28 overflow-hidden bg-ane-50">
+    <section className="relative min-h-screen flex items-center pt-28 overflow-hidden bg-ane-50 scroll-mt-32" id="home">
       <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-ane-200/30 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/2" />
       <div className="absolute bottom-0 left-0 w-[300px] h-[300px] bg-ane-300/20 rounded-full blur-[80px] translate-y-1/2 -translate-x-1/2" />
 
@@ -249,7 +291,7 @@ const Hero = () => {
             <p className="text-xs text-gray-400 font-medium mt-1">{CRP_NUMBER}</p>
           </div>
           <h1 className="text-6xl md:text-8xl font-serif text-gray-800 leading-tight mb-8">
-            Ane de <br/>
+            Ane <br/>
             <span className="text-ane-400 italic">Souza</span>
           </h1>
           <motion.p 
@@ -315,7 +357,7 @@ const Hero = () => {
 
 const About = () => {
   return (
-    <section id="sobre" className="py-24 bg-white relative overflow-hidden">
+    <section id="sobre" className="py-24 bg-white relative overflow-hidden scroll-mt-32">
       <div className="container mx-auto px-6">
         <div className="grid md:grid-cols-2 gap-16 items-center">
           
@@ -337,7 +379,7 @@ const About = () => {
           </motion.div>
 
           <div>
-            <SectionHeading title="Sobre a Profissional" subtitle="Minha Jornada" align="left" />
+            <SectionHeading title="Sobre mim" subtitle="Minha Jornada" align="left" />
             
             <div className="space-y-6 text-gray-600 font-light text-lg leading-relaxed text-justify">
               <motion.p 
@@ -423,7 +465,7 @@ const Specialties = () => {
   };
 
   return (
-    <section id="especialidades" className="py-24 bg-ane-50/50">
+    <section id="especialidades" className="py-24 bg-ane-50/50 scroll-mt-32">
       <div className="container mx-auto px-6">
         <SectionHeading title="Especialidades e Formação" subtitle="Como posso ajudar" />
 
@@ -439,7 +481,7 @@ const Specialties = () => {
               key={idx}
               variants={itemVariant}
               whileHover={{ y: -10 }}
-              className="bg-white p-8 rounded-3xl shadow-sm hover:shadow-xl transition-all duration-300 border border-transparent hover:border-ane-100 group"
+              className="bg-white p-8 rounded-3xl shadow-sm hover:shadow-xl transition-all duration-300 border border-transparent hover:border-ane-100 group cursor-pointer"
             >
               <div className="w-14 h-14 bg-ane-100 rounded-2xl flex items-center justify-center text-ane-500 mb-6 group-hover:bg-ane-400 group-hover:text-white transition-colors duration-300">
                 {item.icon}
@@ -452,15 +494,20 @@ const Specialties = () => {
           ))}
         </motion.div>
 
+        {/* Formation Card with Glowing Effect */}
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="mt-16 text-center max-w-2xl mx-auto"
+          className="mt-16 text-center max-w-3xl mx-auto"
         >
-          <p className="text-gray-500 text-sm bg-white inline-block px-6 py-3 rounded-full shadow-sm border border-ane-100">
-            <span className="font-bold text-ane-400">Formação:</span> Psicologia Organizacional • Neuropsicologia • ACP • Psicologia do Trânsito (cursando)
-          </p>
+          <div className="gradient-border-box p-1 rounded-full inline-block">
+             <div className="bg-white px-8 py-4 rounded-full shadow-sm relative z-10">
+               <p className="text-gray-600 text-base">
+                 <span className="font-bold text-ane-500">Formação:</span> Psicologia Organizacional • Neuropsicologia • ACP • Psicologia do Trânsito (cursando)
+               </p>
+             </div>
+          </div>
         </motion.div>
       </div>
     </section>
@@ -469,49 +516,47 @@ const Specialties = () => {
 
 const PinnedSection = () => {
   return (
-    <div id="processo" className="relative w-full h-[200vh]">
-      <div className="sticky top-0 h-screen w-full overflow-hidden">
-        <div className="absolute inset-0 bg-black/50 z-10" />
-        <img 
-          src="https://images.unsplash.com/photo-1544717305-2782549b5136?q=80&w=1974&auto=format&fit=crop"
-          alt="Atmosphere"
-          className="w-full h-full object-cover"
-        />
-      </div>
+    <section 
+      id="processo" 
+      className="relative w-full h-[80vh] md:h-screen bg-fixed bg-center bg-cover bg-no-repeat flex flex-col items-center justify-center scroll-mt-0"
+      style={{
+        backgroundImage: `url('https://images.unsplash.com/photo-1544717305-2782549b5136?q=80&w=1974&auto=format&fit=crop')`
+      }}
+    >
+      <div className="absolute inset-0 bg-black/60 z-0" />
 
-      <div className="relative z-20 -mt-[100vh]">
-        <div className="h-screen flex items-center justify-center px-6">
-          <motion.div 
-            initial={{ opacity: 0, y: 50 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            className="max-w-3xl text-center text-white p-8 md:p-12"
-          >
-            <SectionHeading title="O Processo Terapêutico" subtitle="Um encontro genuíno" light={true} />
-            <p className="text-2xl md:text-3xl font-light leading-relaxed opacity-90">
-              A terapia não é apenas sobre resolver problemas, mas sobre expandir a consciência de quem você é. Em um ambiente seguro, convido você a explorar suas emoções, ressignificar experiências e descobrir novas formas de estar no mundo.
-            </p>
-          </motion.div>
+      {/* Content */}
+      <motion.div 
+        initial={{ opacity: 0, y: 30 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8 }}
+        className="relative z-10 max-w-4xl px-6 text-center text-white"
+      >
+        <SectionHeading title="O Processo Terapêutico" subtitle="Um encontro genuíno" light={true} />
+        <p className="text-xl md:text-3xl font-light leading-relaxed opacity-90 drop-shadow-md">
+          A terapia não é apenas sobre resolver problemas, mas sobre expandir a consciência de quem você é. Em um ambiente seguro, convido você a explorar suas emoções, ressignificar experiências e descobrir novas formas de estar no mundo.
+        </p>
+      </motion.div>
+
+      {/* Glass Arrow */}
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.5, duration: 1 }}
+        className="absolute bottom-10 z-20 flex flex-col items-center gap-3"
+      >
+        <div className="p-4 rounded-full bg-white/10 backdrop-blur-md border border-white/20 shadow-lg text-white">
+           <ArrowDown size={32} className="animate-bounce" />
         </div>
-        
-        <div className="h-[50vh] flex items-center justify-center px-6 bg-gradient-to-b from-transparent to-white/10 backdrop-blur-sm">
-          <motion.div 
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            className="text-white text-center"
-          >
-            <ArrowRight size={48} className="mx-auto mb-4 animate-bounce text-ane-200" />
-            <p className="text-xl font-serif italic">Continue sua jornada...</p>
-          </motion.div>
-        </div>
-      </div>
-    </div>
+        <p className="text-white/80 font-serif italic text-sm tracking-wider drop-shadow-md">Continue sua jornada...</p>
+      </motion.div>
+    </section>
   );
 };
 
 const Modalities = () => {
   return (
-    <section id="atendimento" className="py-24 bg-white">
+    <section id="atendimento" className="py-24 bg-white scroll-mt-32">
       <div className="container mx-auto px-6">
         <SectionHeading title="Modalidades de Atendimento" subtitle="Flexibilidade para você" />
         
@@ -573,7 +618,7 @@ const Modalities = () => {
 
 const LocationSection = () => {
   return (
-    <section id="localizacao" className="py-24 bg-ane-50/50">
+    <section id="localizacao" className="py-24 bg-ane-50/50 scroll-mt-32">
       <div className="container mx-auto px-6">
         <SectionHeading title="Localização" subtitle="Onde me encontrar" />
         
@@ -622,6 +667,62 @@ const LocationSection = () => {
   );
 };
 
+const PatientTestimonials = () => {
+  const testimonials = [
+    {
+      text: "Fazer terapia com a Ane foi um divisor de águas na minha vida. Senti um acolhimento genuíno e consegui entender questões que carregava há anos.",
+      author: "Maria S.",
+      stars: 5
+    },
+    {
+      text: "Profissional extremamente competente e empática. O ambiente seguro que ela cria me permitiu ser eu mesmo sem medo de julgamentos.",
+      author: "João P.",
+      stars: 5
+    },
+    {
+      text: "A abordagem humanista fez toda a diferença para mim. Me sinto ouvida e respeitada em cada sessão. Recomendo de olhos fechados.",
+      author: "Ana Clara",
+      stars: 5
+    },
+    {
+      text: "Excelente psicóloga! Me ajudou a lidar com a ansiedade e a me conhecer melhor. Sou muito grata por todo o processo.",
+      author: "Beatriz M.",
+      stars: 5
+    }
+  ];
+
+  return (
+    <section id="depoimentos-pacientes" className="py-24 bg-white scroll-mt-32">
+      <div className="container mx-auto px-6">
+        <SectionHeading title="Depoimentos" subtitle="O que dizem os pacientes" />
+        
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {testimonials.map((item, idx) => (
+            <motion.div
+              key={idx}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: idx * 0.1 }}
+              whileHover={{ y: -5 }}
+              className="bg-ane-50/50 p-8 rounded-3xl border border-transparent hover:border-ane-100 hover:shadow-lg transition-all duration-300 relative"
+            >
+              <Quote className="text-ane-200 mb-4 w-8 h-8" />
+              <div className="flex gap-1 mb-4">
+                {[...Array(item.stars)].map((_, i) => (
+                  <Star key={i} size={16} className="fill-ane-300 text-ane-300" />
+                ))}
+              </div>
+              <p className="text-gray-600 font-light italic mb-6 leading-relaxed">"{item.text}"</p>
+              <p className="font-serif font-bold text-gray-800 text-right">- {item.author}</p>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+};
+
 const FAQ = () => {
   const faqs = [
     { question: "Como agendar uma consulta?", answer: "O agendamento é feito diretamente pelo WhatsApp. Basta clicar no botão de agendar e você será redirecionado para combinarmos o melhor horário." },
@@ -637,13 +738,13 @@ const FAQ = () => {
   };
 
   return (
-    <section id="faq" className="py-24 bg-white">
+    <section id="faq" className="py-24 bg-ane-50/30 scroll-mt-32">
       <div className="container mx-auto px-6 max-w-3xl">
         <SectionHeading title="Dúvidas Frequentes" subtitle="Esclarecimentos" />
         
         <div className="space-y-4">
           {faqs.map((faq, idx) => (
-            <div key={idx} className="bg-ane-50 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+            <div key={idx} className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow cursor-pointer">
               <button 
                 onClick={() => toggleFAQ(idx)}
                 className="w-full flex justify-between items-center p-6 text-left focus:outline-none"
@@ -659,7 +760,7 @@ const FAQ = () => {
                     exit={{ height: 0, opacity: 0 }}
                     className="overflow-hidden"
                   >
-                    <div className="px-6 pb-6 text-gray-600 font-light leading-relaxed">
+                    <div className="px-6 pb-6 text-gray-600 font-light leading-relaxed border-t border-gray-100 pt-4">
                       {faq.answer}
                     </div>
                   </motion.div>
@@ -690,7 +791,7 @@ const Quotes = () => {
   }, []);
 
   return (
-    <section id="depoimentos" className="py-32 bg-gradient-to-br from-ane-300 to-ane-500 text-white relative overflow-hidden">
+    <section className="py-32 bg-gradient-to-br from-ane-300 to-ane-500 text-white relative overflow-hidden">
       <div className="absolute top-0 left-0 w-full h-full bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
       
       <div className="container mx-auto px-6 text-center relative z-10">
@@ -790,13 +891,13 @@ const CTA = () => {
 
 const Footer = () => {
   return (
-    <footer id="contato" className="bg-white border-t border-gray-100 pt-20 pb-24">
+    <footer id="contato" className="bg-white border-t border-gray-100 pt-20 pb-24 scroll-mt-32">
       <div className="container mx-auto px-6">
         <div className="grid md:grid-cols-3 gap-12 mb-16 text-center md:text-left">
           
           <div className="flex flex-col items-center md:items-start">
-            <a href={INSTAGRAM_LINK} target="_blank" rel="noopener noreferrer" className="inline-block group">
-              <h3 className="text-2xl font-serif font-bold text-ane-500 group-hover:text-ane-400 transition-colors mb-2">Ane de Souza</h3>
+            <a href={INSTAGRAM_LINK} target="_blank" rel="noopener noreferrer" className="inline-block group cursor-pointer">
+              <h3 className="text-2xl font-serif font-bold text-ane-500 group-hover:text-ane-400 transition-colors mb-2">Ane Souza</h3>
             </a>
             <p className="text-gray-500 font-medium mb-4">{CRP_NUMBER}</p>
             <p className="text-gray-500 leading-relaxed mb-6">
@@ -804,7 +905,7 @@ const Footer = () => {
               Ajudando você a encontrar sua melhor versão através do autoconhecimento.
             </p>
             <div className="flex gap-4">
-              <a href={INSTAGRAM_LINK} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-ane-50 flex items-center justify-center text-ane-400 hover:bg-ane-400 hover:text-white transition-all">
+              <a href={INSTAGRAM_LINK} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-ane-50 flex items-center justify-center text-ane-400 hover:bg-ane-400 hover:text-white transition-all cursor-pointer">
                 <Instagram size={20} />
               </a>
             </div>
@@ -831,19 +932,19 @@ const Footer = () => {
           <div className="flex flex-col items-center md:items-start">
             <h4 className="font-bold text-gray-800 mb-6">Links Rápidos</h4>
             <ul className="space-y-3 text-gray-500">
-              <li><a href="#sobre" className="hover:text-ane-400 transition-colors">Sobre Mim</a></li>
-              <li><a href="#especialidades" className="hover:text-ane-400 transition-colors">Especialidades</a></li>
-              <li><a href="#atendimento" className="hover:text-ane-400 transition-colors">Modalidades</a></li>
-              <li><a href="#localizacao" className="hover:text-ane-400 transition-colors">Localização</a></li>
-              <li><a href="#faq" className="hover:text-ane-400 transition-colors">Dúvidas Frequentes</a></li>
+              <li><a href="#sobre" className="hover:text-ane-400 transition-colors cursor-pointer">Sobre Mim</a></li>
+              <li><a href="#especialidades" className="hover:text-ane-400 transition-colors cursor-pointer">Especialidades</a></li>
+              <li><a href="#atendimento" className="hover:text-ane-400 transition-colors cursor-pointer">Modalidades</a></li>
+              <li><a href="#localizacao" className="hover:text-ane-400 transition-colors cursor-pointer">Localização</a></li>
+              <li><a href="#faq" className="hover:text-ane-400 transition-colors cursor-pointer">Dúvidas Frequentes</a></li>
             </ul>
           </div>
         </div>
 
-        <div className="border-t border-gray-100 pt-8 flex flex-col items-center text-gray-400 text-sm gap-4 text-center">
+        <div className="border-t border-gray-100 pt-8 flex flex-col md:flex-row items-center justify-center text-gray-400 text-sm gap-2 text-center">
           <p>&copy; {new Date().getFullYear()} Ane de Souza. Todos os direitos reservados.</p>
-          
-          <a href={ONZY_LINK} target="_blank" rel="noopener noreferrer" className="group flex items-center gap-1 hover:text-ane-400 transition-colors">
+          <span className="hidden md:inline">|</span>
+          <a href={ONZY_LINK} target="_blank" rel="noopener noreferrer" className="group flex items-center gap-1 hover:text-ane-400 transition-colors cursor-pointer">
             Desenvolvido por <span className="font-semibold text-gray-500 group-hover:text-ane-400 transition-colors">Onzy Company</span>
           </a>
         </div>
@@ -856,7 +957,8 @@ const Footer = () => {
 
 export default function App() {
   return (
-    <div className="font-sans text-gray-800">
+    <div className="font-sans text-gray-800 overflow-x-hidden relative">
+      <CustomCursor />
       <Navbar />
       <Hero />
       <About />
@@ -864,6 +966,7 @@ export default function App() {
       <PinnedSection />
       <Modalities />
       <LocationSection />
+      <PatientTestimonials />
       <FAQ />
       <Quotes />
       <Gallery />
